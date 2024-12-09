@@ -113,11 +113,7 @@ function moreResize() {
 }
 
 export default class Toolbar {
-  constructor(options = {}) {
-    const {
-      hideOptions = [], // Array of options to hide
-    } = options;
-
+  constructor(data, widthFn, isHide = false) {
     this.data = data;
     this.change = () => {};
     this.widthFn = widthFn;
@@ -134,37 +130,43 @@ export default class Toolbar {
     this.ddBorder = new DropdownBorder();
     this.ddMore = new DropdownMore();
     this.btnChildren = [
-      (!hideOptions.includes('undo') ? (this.undoEl = buildButtonWithIcon(`${t('toolbar.undo')} (Ctrl+Z)`, 'undo', () => this.change('undo'))) : false),
-      (!hideOptions.includes('redo') ? (this.redoEl = buildButtonWithIcon(`${t('toolbar.redo')} (Ctrl+Y)`, 'redo', () => this.change('redo'))) : false),
-      (!hideOptions.includes('paintformat') ? (this.paintformatEl = buildButtonWithIcon(`${t('toolbar.paintformat')}`, 'paintformat', () => toggleChange.call(this, 'paintformat'))) : false),
-      (!hideOptions.includes('clearformat') ? (this.clearformatEl = buildButtonWithIcon(`${t('toolbar.clearformat')}`, 'clearformat', () => this.change('clearformat'))) : false),
+      this.undoEl = buildButtonWithIcon(`${t('toolbar.undo')} (Ctrl+Z)`, 'undo', () => this.change('undo')),
+      this.redoEl = buildButtonWithIcon(`${t('toolbar.undo')} (Ctrl+Y)`, 'redo', () => this.change('redo')),
+      // this.printEl = buildButtonWithIcon('Print (Ctrl+P)', 'print', () => this.change('print')),
+      this.paintformatEl = buildButtonWithIcon(`${t('toolbar.paintformat')}`, 'paintformat', () => toggleChange.call(this, 'paintformat')),
+      this.clearformatEl = buildButtonWithIcon(`${t('toolbar.clearformat')}`, 'clearformat', () => this.change('clearformat')),
       buildDivider(),
-      (!hideOptions.includes('font') ? buildButton(`${t('toolbar.font')}`).child(this.ddFont.el) : false),
-      (!hideOptions.includes('fontSize') ? buildButton(`${t('toolbar.fontSize')}`).child(this.ddFontSize.el) : false),
+      buildButton(`${t('toolbar.format')}`).child(this.ddFormat.el),
       buildDivider(),
-      (!hideOptions.includes('bold') ? (this.fontBoldEl = buildButtonWithIcon(`${t('toolbar.bold')} (Ctrl+B)`, 'bold', () => toggleChange.call(this, 'bold'))) : false),
-      (!hideOptions.includes('italic') ? (this.fontItalicEl = buildButtonWithIcon(`${t('toolbar.italic')} (Ctrl+I)`, 'italic', () => toggleChange.call(this, 'italic'))) : false),
-      (!hideOptions.includes('underline') ? (this.underlineEl = buildButtonWithIcon(`${t('toolbar.underline')} (Ctrl+U)`, 'underline', () => toggleChange.call(this, 'underline'))) : false),
-      (!hideOptions.includes('strike') ? (this.strikeEl = buildButtonWithIcon(`${t('toolbar.strike')}`, 'strike', () => toggleChange.call(this, 'strike'))) : false),
-      (!hideOptions.includes('textColor') ? buildButton(`${t('toolbar.textColor')}`).child(this.ddTextColor.el) : false),
+      buildButton(`${t('toolbar.font')}`).child(this.ddFont.el),
+      buildButton(`${t('toolbar.fontSize')}`).child(this.ddFontSize.el),
       buildDivider(),
-      (!hideOptions.includes('fillColor') ? buildButton(`${t('toolbar.fillColor')}`).child(this.ddFillColor.el) : false),
-      (!hideOptions.includes('border') ? buildButton(`${t('toolbar.border')}`).child(this.ddBorder.el) : false),
-      (!hideOptions.includes('merge') ? (this.mergeEl = buildButtonWithIcon(`${t('toolbar.merge')}`, 'merge', () => toggleChange.call(this, 'merge'))) : false),
+      this.fontBoldEl = buildButtonWithIcon(`${t('toolbar.fontBold')} (Ctrl+B)`, 'bold', () => toggleChange.call(this, 'font-bold')),
+      this.fontItalicEl = buildButtonWithIcon(`${t('toolbar.fontItalic')} (Ctrl+I)`, 'italic', () => toggleChange.call(this, 'font-italic')),
+      this.underlineEl = buildButtonWithIcon(`${t('toolbar.underline')} (Ctrl+U)`, 'underline', () => toggleChange.call(this, 'underline')),
+      this.strikeEl = buildButtonWithIcon(`${t('toolbar.strike')}`, 'strike', () => toggleChange.call(this, 'strike')),
+      buildButton(`${t('toolbar.textColor')}`).child(this.ddTextColor.el),
       buildDivider(),
-      (!hideOptions.includes('align') ? buildButton(`${t('toolbar.align')}`).child(this.ddAlign.el) : false),
-      (!hideOptions.includes('valign') ? buildButton(`${t('toolbar.valign')}`).child(this.ddVAlign.el) : false),
-      (!hideOptions.includes('textwrap') ? (this.textwrapEl = buildButtonWithIcon(`${t('toolbar.textwrap')}`, 'textwrap', () => toggleChange.call(this, 'textwrap'))) : false),
+      buildButton(`${t('toolbar.fillColor')}`).child(this.ddFillColor.el),
+      buildButton(`${t('toolbar.border')}`).child(this.ddBorder.el),
+      this.mergeEl = buildButtonWithIcon(`${t('toolbar.merge')}`, 'merge', () => toggleChange.call(this, 'merge')),
       buildDivider(),
-      (!hideOptions.includes('freeze') ? (this.freezeEl = buildButtonWithIcon(`${t('toolbar.freeze')}`, 'freeze', () => toggleChange.call(this, 'freeze'))) : false),
-      (!hideOptions.includes('autofilter') ? (this.autofilterEl = buildButtonWithIcon(`${t('toolbar.autofilter')}`, 'autofilter', () => toggleChange.call(this, 'autofilter'))) : false),
-      (!hideOptions.includes('formula') ? buildButton(`${t('toolbar.formula')}`).child(this.ddFormula.el) : false),
-      (this.moreEl = buildButton(`${t('toolbar.more')}`).child(this.ddMore.el).hide()),
-    ].filter(Boolean); // Filter out any false values
-
+      buildButton(`${t('toolbar.align')}`).child(this.ddAlign.el),
+      buildButton(`${t('toolbar.valign')}`).child(this.ddVAlign.el),
+      this.textwrapEl = buildButtonWithIcon(`${t('toolbar.textwrap')}`, 'textwrap', () => toggleChange.call(this, 'textwrap')),
+      buildDivider(),
+      // this.linkEl = buildButtonWithIcon('Insert link', 'link'),
+      // this.chartEl = buildButtonWithIcon('Insert chart', 'chart'),
+      this.freezeEl = buildButtonWithIcon(`${t('toolbar.freeze')}`, 'freeze', () => toggleChange.call(this, 'freeze')),
+      this.autofilterEl = buildButtonWithIcon(`${t('toolbar.autofilter')}`, 'autofilter', () => toggleChange.call(this, 'autofilter')),
+      buildButton(`${t('toolbar.formula')}`).child(this.ddFormula.el),
+      // buildDivider(),
+      this.moreEl = buildButton(`${t('toolbar.more')}`).child(this.ddMore.el).hide(),
+    ];
     this.el = h('div', `${cssPrefix}-toolbar`);
     this.btns = h('div', `${cssPrefix}-toolbar-btns`).children(...this.btnChildren);
     this.el.child(this.btns);
+    if (isHide) this.el.hide();
     bindDropdownChange.call(this);
     this.reset();
     setTimeout(() => {
