@@ -1,5 +1,5 @@
 {
-  "name": "customize-x-data-spreadsheet",
+  "name": "customizexdataspreadsheet",
   "version": "1.0.1",
   "description": "A simple spreadsheet component",
   "main": "dist/xspreadsheet.js",
